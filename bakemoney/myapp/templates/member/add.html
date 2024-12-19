@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>add</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- ลิงก์ Google Fonts -->
+  <!-- <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet"> -->
+  <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@100..700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+  <style>
+    /* กำหนดฟอนต์สำหรับทั้งเว็บ */
+    body,html{
+            font-family:"Anuphan", sans-serif;
+            background-color: #f0eeee;
+        }
+
+    h1, h2 ,p{
+        font-family:"Anuphan", sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-pink-100 font-sans">
+
+  <div class="flex min-h-screen">
+
+    <!-- เมนูด้านซ้าย -->
+    <aside class="bg-pink-300 text-white w-64 p-6">
+      <h2 class="text-2xl font-bold mb-6 text-center">เมนู</h2>
+      <nav>
+        <ul class="space-y-4">
+          <li>
+            <a href="/" class="flex items-center py-2 px-4 bg-pink-300 hover:bg-pink-300 rounded text-center">
+              <i class="fas fa-home mr-2"></i>หน้าแรก
+            </a>
+          </li>
+          <li>
+            <a href="/add" class="flex items-center py-2 px-4 bg-pink-500 hover:bg-pink-300 rounded text-center">
+              <i class="fas fa-plus-circle mr-2"></i>เพิ่มข้อมูล
+            </a>
+          </li>
+          <li>
+            <a href="/settings" class="flex items-center py-2 px-4 bg-pink-300 hover:bg-pink-300 rounded text-center">
+              <i class="fas fa-cogs mr-2"></i>การตั้งค่า
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- เนื้อหาหลัก -->
+    <main class="flex-1 container mx-auto p-6">
+      <header class="text-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-700">เพิ่มรายรับ/รายจ่าย</h1>
+      </header>
+
+      <!-- ฟอร์มเพิ่มข้อมูลรายรับรายจ่าย -->
+      <section class="bg-white shadow-md rounded-lg p-6">
+        <form method="POST" action="{% url 'add_transaction' %}">
+          {% csrf_token %}
+          
+          <!-- เลือกประเภทข้อมูล -->
+          <div class="mb-4">
+            <label for="transaction_type" class="block text-sm font-semibold text-gray-700">ประเภทข้อมูล</label>
+            <select name="transaction_type" id="transaction_type" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" onchange="toggleCategories()" required>
+              <option value="">เลือกประเภท</option>
+              <option value="income">รายรับ</option>
+              <option value="expense">รายจ่าย</option>
+            </select>
+          </div>
+
+          <!-- ฟอร์มสำหรับรายรับ -->
+          <div id="income_fields" class="hidden mb-4">
+            <label for="income_category" class="block text-sm font-semibold text-gray-700">หมวดหมู่รายรับ</label>
+            <select name="income_category" id="income_category" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+              <option value="salary">เงินเดือน</option>
+              <option value="bonus">โบนัส</option>
+              <option value="investment">การลงทุน</option>
+              <option value="other_income">รายรับอื่นๆ</option>
+            </select>
+          </div>
+
+          <!-- ฟอร์มสำหรับรายจ่าย -->
+          <div id="expense_fields" class="hidden mb-4">
+            <label for="expense_category" class="block text-sm font-semibold text-gray-700">หมวดหมู่รายจ่าย</label>
+            <select name="expense_category" id="expense_category" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+              <option value="food">อาหาร</option>
+              <option value="education">การเรียน</option>
+              <option value="entertainment">ความบันเทิง</option>
+              <option value="transport">การเดินทาง</option>
+              <option value="health">สุขภาพ</option>
+              <option value="other_expense">ค่าใช้จ่ายอื่นๆ</option>
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label for="amount" class="block text-sm font-semibold text-gray-700">จำนวนเงิน (฿)</label>
+            <input type="number" name="amount" id="amount" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required>
+          </div>
+
+          <div class="mb-4">
+            <label for="description" class="block text-sm font-semibold text-gray-700">คำอธิบาย</label>
+            <textarea name="description" id="description" rows="4" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required></textarea>
+          </div>
+
+          <div class="text-center">
+            <button type="submit" class="bg-pink-500 text-white py-2 px-6 rounded-md hover:bg-pink-600">บันทึกข้อมูล</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // ฟังก์ชันที่จะซ่อนหรือแสดงฟอร์มตามประเภทที่เลือก
+    function toggleCategories() {
+      const transactionType = document.getElementById('transaction_type').value;
+      const incomeFields = document.getElementById('income_fields');
+      const expenseFields = document.getElementById('expense_fields');
+
+      if (transactionType === 'income') {
+        incomeFields.classList.remove('hidden');
+        expenseFields.classList.add('hidden');
+      } else if (transactionType === 'expense') {
+        expenseFields.classList.remove('hidden');
+        incomeFields.classList.add('hidden');
+      } else {
+        incomeFields.classList.add('hidden');
+        expenseFields.classList.add('hidden');
+      }
+    }
+  </script>
+</body>
+</html>
